@@ -1,7 +1,6 @@
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class Main {
     public static final Map<Integer, Integer> sizeToFreq = new LinkedHashMap<>();
@@ -22,21 +21,27 @@ public class Main {
             threads[i].join();
         }
 
-        Map<Integer, Integer> sortedMap = sizeToFreq
+/*        Map<Integer, Integer> sortedMap = sizeToFreq
                 .entrySet()
                 .stream()
                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                 .collect( Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
-                        LinkedHashMap::new));
+                        LinkedHashMap::new));*/
 
-        int i = 0;
-        for(Map.Entry<Integer, Integer> entry : sortedMap.entrySet()){
-            if(i++ == 0) {
-                System.out.println("\nСамое частое количество повторений " + entry.getKey() +
-                        " (встретилось " + entry.getValue() + " раз)");
-                System.out.println("Другие размеры:");
+        int max_key = 0;
+        int max_value = 0;
+        for(Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()){
+            if(max_value < entry.getValue()){
+                max_value = entry.getValue();
+                max_key = entry.getKey();
             }
-            else{
+        }
+        System.out.println("\nСамое частое количество повторений " + max_key +
+                " (встретилось " + max_value + " раз)");
+        System.out.println("Другие размеры:");
+
+        for(Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()){
+            if(entry.getKey() != max_key && entry.getValue() != max_value) {
                 System.out.println("- " + entry.getKey() + " (" + entry.getValue() + " раз)");
             }
         }
