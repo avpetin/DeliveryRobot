@@ -7,12 +7,12 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         final Thread[] threads = new Thread[1000];
-        for (int i = 0; i < threads.length; i++){
-            threads[i] = new Thread(()->{
+        for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread(() -> {
                 String route = generateRoute("RLRFR", 100);
                 String[] rCountArray = route.split("R");
                 System.out.println("Kоличество команд поворота направо " + rCountArray.length);
-                synchronized (sizeToFreq){
+                synchronized (sizeToFreq) {
                     int value = sizeToFreq.get(rCountArray.length) == null ? 1 : sizeToFreq.get(rCountArray.length) + 1;
                     sizeToFreq.put(rCountArray.length, value);
                 }
@@ -30,8 +30,8 @@ public class Main {
 
         int max_key = 0;
         int max_value = 0;
-        for(Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()){
-            if(max_value < entry.getValue()){
+        for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
+            if (max_value < entry.getValue()) {
                 max_value = entry.getValue();
                 max_key = entry.getKey();
             }
@@ -40,8 +40,8 @@ public class Main {
                 " (встретилось " + max_value + " раз)");
         System.out.println("Другие размеры:");
 
-        for(Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()){
-            if(entry.getKey() != max_key && entry.getValue() != max_value) {
+        for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
+            if (entry.getKey() != max_key && entry.getValue() != max_value) {
                 System.out.println("- " + entry.getKey() + " (" + entry.getValue() + " раз)");
             }
         }
