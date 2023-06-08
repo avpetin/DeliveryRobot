@@ -6,7 +6,7 @@ public class Main {
     public static final Map<Integer, Integer> sizeToFreq = new LinkedHashMap<>();
 
     public static void main(String[] args) throws InterruptedException {
-        final Thread[] threads = new Thread[1000];
+        Thread[] threads = new Thread[1000];
         for (int i = 0; i < threads.length; i++) {
             threads[i] = new Thread(() -> {
                 String route = generateRoute("RLRFR", 100);
@@ -18,33 +18,36 @@ public class Main {
                 }
             });
             threads[i].start();
+            try {
+                threads[i].wait();
+            }
+            catch (IllegalMonitorStateException e){}
             threads[i].join();
         }
-
-/*        Map<Integer, Integer> sortedMap = sizeToFreq
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                .collect( Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
-                        LinkedHashMap::new));*/
-
-        int max_key = 0;
-        int max_value = 0;
-        for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
-            if (max_value < entry.getValue()) {
-                max_value = entry.getValue();
-                max_key = entry.getKey();
+        Thread leaderThread = new Thread(() -> {
+            int mapSize = 0;
+            int max_key = 0;
+            int max_value = 0;
+            while(!Thread.interrupted()){
+                if(mapSize >= sizeToFreq.size()) {
+                    for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
+                        if (max_value < entry.getValue()) {
+                            max_value = entry.getValue();
+                            max_key = entry.getKey();
+                        }
+                    }
+                    System.out.println("\nЛидер по частоте повторений " + max_key +
+                            " (встретилось " + max_value + " раз)");
+                }
+               else {
+                    mapSize++;
+                    threads[sizeToFreq.size() - 1].notify();
+               }
             }
-        }
-        System.out.println("\nСамое частое количество повторений " + max_key +
-                " (встретилось " + max_value + " раз)");
-        System.out.println("Другие размеры:");
-
-        for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
-            if (entry.getKey() != max_key && entry.getValue() != max_value) {
-                System.out.println("- " + entry.getKey() + " (" + entry.getValue() + " раз)");
-            }
-        }
+        });
+        leaderThread.start();
+        while(sizeToFreq.size() != threads.length){};
+        leaderThread.interrupt();
     }
 
     public static String generateRoute(String letters, int length) {
